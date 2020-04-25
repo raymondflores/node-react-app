@@ -33,7 +33,10 @@ app.use(multer({ storage, fileFilter }).single('image'));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+  );
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
@@ -43,9 +46,13 @@ app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
-  const { statusCode, message } = error;
-  res.status(statusCode || 500).json({ message });
+  const { statusCode, message, data } = error;
+  res.status(statusCode || 500).json({ message, data });
 });
 
-mongoose.connect(process.env.MONGODB_URI);
-app.listen(8080);
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    app.listen(8080);
+  })
+  .catch(err => console.log(err));

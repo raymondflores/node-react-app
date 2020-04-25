@@ -3,6 +3,7 @@ const path = require('path');
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
+const User = require('../models/user');
 
 exports.getPosts = async (req, res, next) => {
   try {
@@ -45,13 +46,21 @@ exports.createPost = async (req, res, next) => {
       title,
       content,
       imageUrl,
-      creator: { name: 'Raymond' }
+      creator: req.userId
     });
+
     const savedPost = await post.save();
+    const user = await User.findById(req.userId);
+    user.posts.push(post);
+    await user.save();
 
     res.status(201).json({
       message: 'Created Successfully!',
-      post: savedPost
+      post: savedPost,
+      creator: {
+        _id: user._id,
+        name: user.name
+      }
     });
   } catch (err) {
     next(err);
@@ -110,6 +119,12 @@ exports.updatePost = async (req, res, next) => {
       throw error;
     }
 
+    if (post.creator.toString() !== req.userId) {
+      const error = new Error('Not Authorized.');
+      error.statusCode = 403;
+      throw error;
+    }
+
     if (imageUrl !== post.imageUrl) clearImage(post.imageUrl); // delete old image
 
     post.title = title;
@@ -137,8 +152,18 @@ exports.deletePost = async (req, res, next) => {
       throw error;
     }
 
+    if (post.creator.toString() !== req.userId) {
+      const error = new Error('Not Authorized.');
+      error.statusCode = 403;
+      throw error;
+    }
+
     clearImage(post.imageUrl);
     await Post.findByIdAndRemove(postId);
+
+    const user = await User.findById(req.userId);
+    user.posts.pull(postId);
+    await user.save();
 
     res.status(200).json({
       message: 'Deleted post.'
