@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --timeout 5000",
     "start": "nodemon app.js"
   },
   "author": "",
@@ -21,6 +21,9 @@
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.3"
+    "chai": "^4.2.0",
+    "mocha": "^7.1.2",
+    "nodemon": "^2.0.3",
+    "sinon": "^9.0.2"
   }
 }
