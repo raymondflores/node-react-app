@@ -1,5 +1,5 @@
 # node-rest-api
-A REST api built in node.js w/ express framework
+This is an example node/react/mongodb app built using REST and GraphQL approach
 
 ## How to run app
 Create a `.env` file using the `.env-example` as a template
